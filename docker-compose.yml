@@ -1,0 +1,26 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: db_servico
+    environment:
+      MYSQL_ROOT_PASSWORD: password123
+      MYSQL_DATABASE: projeto_db
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 5
+
+  web:
+    build: 
+      context: ./app
+      dockerfile: Dockerfile.main
+    container_name: web_servico
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./app:/app
